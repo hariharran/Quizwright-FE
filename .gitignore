@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.vite/
+
+# Browser automation output
+.playwright-mcp/
+*.png
+
+# Editors & OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

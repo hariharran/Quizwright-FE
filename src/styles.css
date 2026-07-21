@@ -1,0 +1,518 @@
+/* =========================================================================
+   Quiz Generator — design tokens
+
+   Register: developer tooling. The lesson is about MCP config files, APIs and
+   agent frameworks, so every label, badge and index is set in monospace and
+   prose is set in sans. That split does the work a second display face usually
+   would, and it is true to the subject rather than decorative.
+
+   Colour: indigo ink (the platform's own family) with a single amber used
+   exclusively for revealed answers — the highlighter you'd drag across a
+   transcript. Amber appears nowhere else, so it always means "this is the
+   answer".
+   ========================================================================= */
+
+:root {
+  --ink: #191627;
+  --ink-2: #4a4661;
+  --ink-3: #7b7791;
+  --paper: #f6f5fa;
+  --surface: #ffffff;
+  --surface-2: #eeecf6;
+  --line: #ddd9ec;
+  --indigo: #443fa0;
+  --indigo-soft: #e6e3f8;
+  --amber: #a76a0d;
+  --amber-soft: #fdf1dc;
+  --amber-line: #e8c489;
+  --danger: #a32c3f;
+  --danger-soft: #fbe9ec;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  --step--1: 0.78rem;
+  --step-0: 0.95rem;
+  --step-1: 1.15rem;
+  --step-2: 1.6rem;
+  --step-3: clamp(2rem, 5vw, 3.1rem);
+
+  --radius: 10px;
+  --gap: 1.5rem;
+  --shadow: 0 1px 2px rgb(25 22 39 / 6%), 0 8px 24px -12px rgb(25 22 39 / 18%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #eceaf6;
+    --ink-2: #a9a4c2;
+    --ink-3: #7d7899;
+    --paper: #121019;
+    --surface: #1b1826;
+    --surface-2: #241f33;
+    --line: #322c46;
+    --indigo: #a49dfb;
+    --indigo-soft: #2a2445;
+    --amber: #f0b75e;
+    --amber-soft: #33260f;
+    --amber-line: #6b4f1d;
+    --danger: #ff8fa0;
+    --danger-soft: #3a1720;
+    --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 24px -12px rgb(0 0 0 / 70%);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --- utility type --------------------------------------------------------- */
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.02em;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* --- shell ---------------------------------------------------------------- */
+
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 2rem) 5rem;
+}
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.masthead h1 {
+  margin: 0.35rem 0 0;
+  font-size: var(--step-3);
+  font-weight: 620;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.masthead > div:first-child { flex: 1 1 30rem; min-width: 0; }
+
+.masthead p {
+  margin: 0.5rem 0 0;
+  max-width: 58ch;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); }
+.dot--ok { background: #2f9e63; }
+.dot--warn { background: #d08a1c; }
+.dot--down { background: var(--danger); }
+
+.layout {
+  display: grid;
+  gap: var(--gap);
+  margin-top: var(--gap);
+  align-items: start;
+}
+
+@media (min-width: 62rem) {
+  .layout { grid-template-columns: 19.5rem 1fr; }
+  .controls { position: sticky; top: 1.5rem; }
+}
+
+/* --- panels --------------------------------------------------------------- */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.field { display: block; margin-bottom: 1.1rem; }
+.field:last-of-type { margin-bottom: 0; }
+
+.field > .eyebrow { display: block; margin-bottom: 0.4rem; }
+
+.field input[type='text'],
+.field input[type='number'],
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+}
+
+.field textarea { min-height: 7rem; resize: vertical; line-height: 1.45; }
+
+.segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.3rem; }
+
+.segmented button {
+  padding: 0.45rem 0.3rem;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--paper);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--indigo);
+  border-color: var(--indigo);
+  color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .segmented button[aria-pressed='true'] { color: #14111f; }
+}
+
+.checks { display: grid; gap: 0.45rem; }
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.check input { accent-color: var(--indigo); width: 1rem; height: 1rem; }
+
+.generate {
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--indigo);
+  border-radius: 8px;
+  background: var(--indigo);
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+
+.generate:hover:not(:disabled) { filter: brightness(1.12); }
+.generate:disabled { opacity: 0.55; cursor: progress; }
+
+@media (prefers-color-scheme: dark) { .generate { color: #14111f; } }
+
+.linkish {
+  margin-top: 0.8rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--indigo);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* --- signature: lesson coverage strip -------------------------------------
+   One segment per chunk of the transcript, left to right in lesson order.
+   Lit segments are the passages this quiz drew from, so "did it cover the
+   whole lesson or just the intro?" is answerable at a glance.
+   ------------------------------------------------------------------------ */
+
+.coverage { margin-bottom: var(--gap); }
+
+.coverage__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.coverage__track {
+  display: flex;
+  gap: 2px;
+  height: 2.6rem;
+  align-items: stretch;
+}
+
+.coverage__seg {
+  flex: 1 1 0;
+  min-width: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: var(--surface-2);
+  transition: background 0.18s, transform 0.18s;
+}
+
+.coverage__seg--used { background: var(--indigo); opacity: 0.42; cursor: pointer; }
+.coverage__seg--used:hover { opacity: 0.75; }
+.coverage__seg--active { opacity: 1; transform: scaleY(1.14); }
+
+.coverage__scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.4rem;
+}
+
+/* --- run summary ---------------------------------------------------------- */
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--line);
+}
+
+.stat { display: flex; align-items: baseline; gap: 0.4rem; }
+.stat b { font-family: var(--font-mono); font-size: var(--step--1); font-weight: 600; }
+
+.notice {
+  margin-top: 0.9rem;
+  padding: 0.6rem 0.75rem;
+  border-left: 3px solid var(--amber-line);
+  background: var(--amber-soft);
+  border-radius: 0 6px 6px 0;
+  color: var(--ink);
+}
+
+/* --- question cards ------------------------------------------------------- */
+
+.results { display: grid; gap: 0.9rem; }
+
+.results__bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.toggle {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  cursor: pointer;
+}
+
+.toggle:hover { border-color: var(--indigo); color: var(--indigo); }
+
+.card {
+  position: relative;
+  padding: 1.1rem 1.25rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  scroll-margin-top: 1.5rem;
+  transition: border-color 0.18s;
+}
+
+.card:hover { border-color: var(--indigo); }
+
+.card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.7rem;
+}
+
+.card__index {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-3);
+  margin-right: 0.2rem;
+}
+
+.tag {
+  padding: 0.15rem 0.5rem;
+  border-radius: 5px;
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+
+.tag--type { background: var(--indigo-soft); color: var(--indigo); }
+.tag--source { margin-left: auto; }
+
+.card__question {
+  margin: 0 0 0.85rem;
+  font-size: var(--step-1);
+  line-height: 1.4;
+  letter-spacing: -0.011em;
+}
+
+.options { display: grid; gap: 0.4rem; margin: 0 0 0.9rem; padding: 0; list-style: none; }
+
+.option {
+  display: flex;
+  gap: 0.65rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--paper);
+}
+
+.option__key {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-3);
+  min-width: 1.1rem;
+}
+
+.option--correct {
+  border-color: var(--amber-line);
+  background: var(--amber-soft);
+}
+
+.option--correct .option__key { color: var(--amber); font-weight: 700; }
+
+.answer {
+  padding: 0.7rem 0.85rem;
+  border-left: 3px solid var(--amber-line);
+  background: var(--amber-soft);
+  border-radius: 0 7px 7px 0;
+}
+
+.answer__label {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--amber);
+}
+
+.explanation {
+  margin: 0.75rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--line);
+  color: var(--ink-2);
+  font-size: var(--step--1);
+  line-height: 1.6;
+}
+
+.hidden-answer {
+  padding: 0.7rem 0.85rem;
+  border: 1px dashed var(--line);
+  border-radius: 7px;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+}
+
+/* --- states --------------------------------------------------------------- */
+
+.empty, .error, .loading {
+  padding: 2.5rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: center;
+}
+
+.empty h2, .error h2 { margin: 0.6rem 0 0.4rem; font-size: var(--step-2); letter-spacing: -0.02em; }
+.empty p, .error p { margin: 0 auto; max-width: 42ch; color: var(--ink-2); }
+
+.error { border-color: var(--danger); background: var(--danger-soft); text-align: left; }
+.error h2 { color: var(--danger); }
+.error ul { margin: 0.7rem 0 0; padding-left: 1.1rem; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--step--1); }
+
+.loading { text-align: left; }
+
+.skeleton-row {
+  height: 0.85rem;
+  margin-bottom: 0.55rem;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--line) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.footer {
+  margin-top: 3rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-3);
+}
