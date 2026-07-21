@@ -146,16 +146,20 @@ export default function App() {
             <div className="error" role="alert">
               <span className="eyebrow">{error.code}</span>
               <h2>
-                {error.isRetryable
-                  ? error.attemptedTwice
-                    ? 'Still unavailable. Try again later.'
-                    : 'That request could not be completed.'
-                  : 'That request was not accepted.'}
+                {error.isAuthError
+                  ? 'The service rejected its API credentials.'
+                  : error.isRetryable
+                    ? error.attemptedTwice
+                      ? 'Still unavailable. Try again later.'
+                      : 'That request could not be completed.'
+                    : 'That request was not accepted.'}
               </h2>
               <p>
-                {error.attemptedTwice
-                  ? 'We tried twice and the service is still busy. This is usually temporary — waiting a minute is normally enough.'
-                  : error.message}
+                {error.isAuthError
+                  ? 'This is a configuration problem, not a temporary one — retrying will not help until the key is fixed.'
+                  : error.attemptedTwice
+                    ? 'We tried twice and the service is still busy. This is usually temporary — waiting a minute is normally enough.'
+                    : error.message}
               </p>
 
               {error.readableReason && (

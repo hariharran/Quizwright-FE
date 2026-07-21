@@ -26,21 +26,37 @@ export class ApiError extends Error {
     return this.details?.fields ?? []
   }
 
+  /** A rejected credential never fixes itself; retrying just wastes the wait. */
+  get isAuthError() {
+    const reason = this.details?.reason ?? ''
+    return /\b401\b|UNAUTHENTICATED|PERMISSION_DENIED|API key/i.test(reason)
+  }
+
   get isRetryable() {
+    if (this.isAuthError) return false
     return RETRYABLE_CODES.has(this.code) || this.status >= 502
   }
 
   /**
-   * Provider errors arrive as a raw dump:
-   *   503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is
-   *   currently experiencing high demand...', 'status': 'UNAVAILABLE'}}
-   * Pull out the sentence a person can act on.
+   * Provider errors arrive as a raw dump, often truncated mid-structure:
+   *   401 UNAUTHENTICATED. {'error': {'code': 401, 'message': 'Request had
+   *   invalid authentication credentials...', 'status': 'UNAUTHENTICATED', 'de
+   *
+   * Show the sentence a person can act on, never the wrapper.
    */
   get readableReason() {
     const reason = this.details?.reason
     if (!reason) return null
-    const match = reason.match(/'message':\s*'([^']+)'/)
-    return match ? match[1] : reason
+
+    // The quoted message, tolerating single or double quotes and a payload
+    // that was cut off before its closing brace.
+    const quoted = reason.match(/['"]message['"]\s*:\s*['"]([^'"]+)/)
+    if (quoted) return quoted[1].trim()
+
+    // Nothing quoted: drop the "401 UNAUTHENTICATED. {…" wrapper and show
+    // whatever prose remains rather than a brace soup.
+    const stripped = reason.replace(/^\d{3}\s+[A-Z_]+\.?\s*/, '').replace(/^\{.*$/, '')
+    return stripped.trim() || null
   }
 }
 
