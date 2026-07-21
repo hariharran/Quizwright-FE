@@ -494,6 +494,22 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .error h2 { color: var(--danger); }
 .error ul { margin: 0.7rem 0 0; padding-left: 1.1rem; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--step--1); }
 
+/* The upstream's own words, quoted rather than paraphrased: a support thread
+   goes nowhere without the provider's actual message. */
+.error__reason {
+  margin-top: 0.9rem;
+  padding: 0.6rem 0.75rem;
+  border-left: 3px solid var(--danger);
+  background: var(--surface);
+  border-radius: 0 6px 6px 0;
+  font-size: var(--step--1);
+  color: var(--ink-2);
+}
+
+.error__reason .eyebrow { display: block; margin-bottom: 0.25rem; }
+
+.error__retry { margin-top: 1rem; background: var(--surface); }
+
 .loading { text-align: left; }
 
 .skeleton-row {

@@ -19,6 +19,7 @@ export default function App() {
   const [quiz, setQuiz] = useState(null)
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [retrying, setRetrying] = useState(false)
   const [revealed, setRevealed] = useState(new Set())
   const [activeChunk, setActiveChunk] = useState(null)
 
@@ -47,13 +48,18 @@ export default function App() {
     setBusy(true)
     setError(null)
     setQuiz(null)
+    setRetrying(false)
     setRevealed(new Set())
     try {
-      setQuiz(await generateQuiz(form))
+      // One automatic retry when the model is busy, so a transient 503 does not
+      // become the user's problem. The loading state says it is happening
+      // rather than silently doubling the wait.
+      setQuiz(await generateQuiz(form, { onRetry: () => setRetrying(true) }))
     } catch (err) {
       setError(err)
     } finally {
       setBusy(false)
+      setRetrying(false)
     }
   }
 
@@ -124,10 +130,11 @@ export default function App() {
         <main>
           {busy && (
             <div className="loading" aria-live="polite">
-              <span className="eyebrow">Working</span>
+              <span className="eyebrow">{retrying ? 'Retrying' : 'Working'}</span>
               <p style={{ margin: '0.4rem 0 1.2rem', color: 'var(--ink-2)' }}>
-                Retrieving passages, then writing {form.questionCount} questions. This takes
-                around 20 seconds.
+                {retrying
+                  ? 'The model was busy on the first attempt. Trying once more — around 20 seconds.'
+                  : `Retrieving passages, then writing ${form.questionCount} questions. This takes around 20 seconds.`}
               </p>
               {Array.from({ length: 5 }, (_, i) => (
                 <div className="skeleton-row" key={i} style={{ width: `${92 - i * 11}%` }} />
@@ -138,8 +145,26 @@ export default function App() {
           {!busy && error && (
             <div className="error" role="alert">
               <span className="eyebrow">{error.code}</span>
-              <h2>That request did not go through.</h2>
-              <p>{error.message}</p>
+              <h2>
+                {error.isRetryable
+                  ? error.attemptedTwice
+                    ? 'Still unavailable. Try again later.'
+                    : 'That request could not be completed.'
+                  : 'That request was not accepted.'}
+              </h2>
+              <p>
+                {error.attemptedTwice
+                  ? 'We tried twice and the service is still busy. This is usually temporary — waiting a minute is normally enough.'
+                  : error.message}
+              </p>
+
+              {error.readableReason && (
+                <p className="error__reason">
+                  <span className="eyebrow">Reported by the service</span>
+                  {error.readableReason}
+                </p>
+              )}
+
               {error.fieldErrors.length > 0 && (
                 <ul>
                   {error.fieldErrors.map((field) => (
@@ -148,6 +173,12 @@ export default function App() {
                     </li>
                   ))}
                 </ul>
+              )}
+
+              {error.isRetryable && (
+                <button type="button" className="toggle error__retry" onClick={handleGenerate}>
+                  Try again
+                </button>
               )}
             </div>
           )}
